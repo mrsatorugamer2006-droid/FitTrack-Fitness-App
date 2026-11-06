@@ -250,9 +250,6 @@ def create_app():
     with app.app_context():
         db.create_all()
 
-    @app.route('/')
-    def home():
-        return app.send_static_file('index.html')
     return app
 
 
