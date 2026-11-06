@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="FitTrack — Premium fitness tracking dashboard. Log workouts, track calories, calculate BMI, set goals, and monitor weekly progress.">
+  <title>FitTrack — Fitness Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ═══ Animated Background Orbs ═══ -->
+  <div class="bg-orbs">
+    <div class="bg-orb"></div>
+    <div class="bg-orb"></div>
+    <div class="bg-orb"></div>
+  </div>
+
+  <!-- ═══ Toast Container ═══ -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- ═══ Confetti Container ═══ -->
+  <div id="confetti-container" class="confetti-container"></div>
+
+  <!-- ═══ Auth View ═══ -->
+  <div id="auth-view">
+    <div id="login-page" class="auth-container">
+      <div class="auth-card">
+        <div class="auth-logo">
+          <div class="logo-icon">🏋️</div>
+          <h1>FitTrack</h1>
+          <p>Your personal fitness companion</p>
+        </div>
+        <div id="login-error" class="auth-error"></div>
+        <form id="login-form" class="auth-form">
+          <div class="form-group">
+            <label for="login-email">Email</label>
+            <input type="email" id="login-email" placeholder="you@example.com" required>
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" placeholder="Enter your password" required>
+          </div>
+          <button type="submit" class="auth-btn" id="login-btn">Sign In</button>
+        </form>
+        <div class="auth-switch">Don't have an account? <a id="show-signup">Create one</a></div>
+      </div>
+    </div>
+
+    <div id="signup-page" class="auth-container" style="display:none;">
+      <div class="auth-card">
+        <div class="auth-logo">
+          <div class="logo-icon">🏋️</div>
+          <h1>FitTrack</h1>
+          <p>Start your fitness journey</p>
+        </div>
+        <div id="signup-error" class="auth-error"></div>
+        <form id="signup-form" class="auth-form">
+          <div class="form-group">
+            <label for="signup-username">Username</label>
+            <input type="text" id="signup-username" placeholder="Choose a username" required>
+          </div>
+          <div class="form-group">
+            <label for="signup-email">Email</label>
+            <input type="email" id="signup-email" placeholder="you@example.com" required>
+          </div>
+          <div class="form-group">
+            <label for="signup-password">Password</label>
+            <input type="password" id="signup-password" placeholder="At least 6 characters" required minlength="6">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="signup-height">Height (cm)</label>
+              <input type="number" id="signup-height" placeholder="175" step="0.1">
+            </div>
+            <div class="form-group">
+              <label for="signup-weight">Weight (kg)</label>
+              <input type="number" id="signup-weight" placeholder="70" step="0.1">
+            </div>
+          </div>
+          <button type="submit" class="auth-btn" id="signup-btn">Create Account</button>
+        </form>
+        <div class="auth-switch">Already have an account? <a id="show-login">Sign in</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ App View ═══ -->
+  <div id="app-view" style="display:none;">
+    <button class="mobile-toggle" id="mobile-toggle">☰</button>
+
+    <div class="app-layout">
+      <!-- ── Sidebar ── -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <div class="logo">
+            <div class="logo-icon">🏋️</div>
+            <span class="logo-text">FitTrack</span>
+          </div>
+        </div>
+        <nav class="sidebar-nav">
+          <div class="nav-section">
+            <span class="nav-section-title">Overview</span>
+            <a class="nav-item active" data-page="dashboard">
+              <span class="icon">📊</span> Dashboard
+            </a>
+          </div>
+          <div class="nav-section">
+            <span class="nav-section-title">Tracking</span>
+            <a class="nav-item" data-page="workouts"><span class="icon">💪</span> Workouts</a>
+            <a class="nav-item" data-page="calories"><span class="icon">🍎</span> Calories</a>
+            <a class="nav-item" data-page="water"><span class="icon">💧</span> Water Intake</a>
+            <a class="nav-item" data-page="bmi"><span class="icon">⚖️</span> BMI Calculator</a>
+          </div>
+          <div class="nav-section">
+            <span class="nav-section-title">Progress</span>
+            <a class="nav-item" data-page="goals"><span class="icon">🎯</span> Goals</a>
+            <a class="nav-item" data-page="progress"><span class="icon">📈</span> Weekly Progress</a>
+          </div>
+          <div class="nav-section">
+            <span class="nav-section-title">Account</span>
+            <a class="nav-item" data-page="profile"><span class="icon">👤</span> Profile</a>
+          </div>
+        </nav>
+        <div class="sidebar-footer">
+          <div class="user-info">
+            <div class="user-avatar" id="user-avatar">U</div>
+            <div class="user-details">
+              <div class="user-name" id="user-name">User</div>
+              <div class="user-email" id="user-email">user@email.com</div>
+            </div>
+            <button class="logout-btn" id="logout-btn" title="Logout">🚪</button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ── Main Content ── -->
+      <main class="main-content">
+
+        <!-- ═══ DASHBOARD ═══ -->
+        <div class="page-view active" id="page-dashboard">
+          <div class="page-header">
+            <h2>Dashboard</h2>
+            <p id="dashboard-greeting">Welcome back! Here's your fitness overview.</p>
+          </div>
+          <div class="page-body">
+            <!-- Quote -->
+            <div class="quote-card" id="quote-card">
+              <div class="quote-text" id="quote-text">Loading inspiration...</div>
+              <div class="quote-author" id="quote-author"></div>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid" id="dashboard-stats">
+              <div class="stat-card primary">
+                <div class="stat-icon">💪</div>
+                <div class="stat-label">Workouts This Week</div>
+                <div class="stat-value" id="stat-workouts" data-target="0">0</div>
+              </div>
+              <div class="stat-card success">
+                <div class="stat-icon">⏱️</div>
+                <div class="stat-label">Minutes Trained</div>
+                <div class="stat-value" id="stat-minutes" data-target="0">0</div>
+              </div>
+              <div class="stat-card warning">
+                <div class="stat-icon">🔥</div>
+                <div class="stat-label">Calories Burned</div>
+                <div class="stat-value" id="stat-burned" data-target="0">0</div>
+              </div>
+              <div class="stat-card info">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-label">Active Goals</div>
+                <div class="stat-value" id="stat-goals" data-target="0">0</div>
+              </div>
+              <div class="stat-card water">
+                <div class="stat-icon">💧</div>
+                <div class="stat-label">Water Today</div>
+                <div class="stat-value" id="stat-water" data-target="0">0</div>
+                <div class="stat-sub" id="stat-water-sub">ml</div>
+              </div>
+              <div class="stat-card pink">
+                <div class="stat-icon">🔥</div>
+                <div class="stat-label">Day Streak</div>
+                <div class="stat-value" id="stat-streak" data-target="0">0</div>
+                <div class="stat-sub" id="stat-streak-sub">Keep going!</div>
+              </div>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+              <div class="dashboard-main">
+                <div class="charts-grid">
+                  <div class="card">
+                    <div class="card-header"><h3>Workout Duration</h3></div>
+                    <div class="card-body"><div class="chart-container"><canvas id="chart-workout-duration"></canvas></div></div>
+                  </div>
+                  <div class="card">
+                    <div class="card-header"><h3>Calories Overview</h3></div>
+                    <div class="card-body"><div class="chart-container"><canvas id="chart-calories"></canvas></div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="dashboard-sidebar-widgets">
+                <!-- Streak Widget -->
+                <div class="card">
+                  <div class="card-header"><h3>🔥 Workout Streak</h3></div>
+                  <div class="card-body" id="streak-widget">
+                    <div class="streak-display">
+                      <div class="streak-flame">🔥</div>
+                      <div class="streak-info">
+                        <div class="streak-count" id="streak-count">0</div>
+                        <div class="streak-label">Day Streak</div>
+                        <div class="streak-best" id="streak-best">Best: 0 days</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Activity Feed -->
+                <div class="card" style="flex:1;">
+                  <div class="card-header"><h3>📜 Recent Activity</h3></div>
+                  <div class="card-body" id="activity-feed" style="max-height: 320px; overflow-y: auto;">
+                    <div class="spinner"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ WORKOUTS ═══ -->
+        <div class="page-view" id="page-workouts">
+          <div class="page-header">
+            <h2>Workout Logger</h2>
+            <p>Log and manage your workout sessions.</p>
+          </div>
+          <div class="page-body">
+            <div class="card" style="margin-bottom:24px;">
+              <div class="card-header"><h3>Log New Workout</h3></div>
+              <div class="card-body">
+                <form id="workout-form">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="workout-type">Exercise Type</label>
+                      <select id="workout-type" required>
+                        <option value="">Select exercise...</option>
+                        <option value="Running">🏃 Running</option>
+                        <option value="Cycling">🚴 Cycling</option>
+                        <option value="Swimming">🏊 Swimming</option>
+                        <option value="Weight Training">🏋️ Weight Training</option>
+                        <option value="Yoga">🧘 Yoga</option>
+                        <option value="HIIT">⚡ HIIT</option>
+                        <option value="Walking">🚶 Walking</option>
+                        <option value="Jump Rope">🪢 Jump Rope</option>
+                        <option value="Pilates">🤸 Pilates</option>
+                        <option value="Boxing">🥊 Boxing</option>
+                        <option value="Other">✨ Other</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="workout-duration">Duration (minutes)</label>
+                      <input type="number" id="workout-duration" placeholder="30" min="1" required>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="workout-calories">Calories Burned</label>
+                      <input type="number" id="workout-calories" placeholder="200" min="0">
+                    </div>
+                    <div class="form-group">
+                      <label for="workout-date">Date</label>
+                      <input type="date" id="workout-date">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="workout-notes">Notes</label>
+                    <textarea id="workout-notes" placeholder="How was the workout?"></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary">💪 Log Workout</button>
+                </form>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><h3>Recent Workouts</h3></div>
+              <div class="card-body" id="workouts-list"><div class="spinner"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ CALORIES ═══ -->
+        <div class="page-view" id="page-calories">
+          <div class="page-header">
+            <h2>Calorie Tracker</h2>
+            <p>Track your daily food intake.</p>
+          </div>
+          <div class="page-body">
+            <div class="card" style="margin-bottom:24px;">
+              <div class="card-header"><h3>Log Meal</h3></div>
+              <div class="card-body">
+                <form id="calorie-form">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="meal-type">Meal Type</label>
+                      <select id="meal-type" required>
+                        <option value="">Select meal...</option>
+                        <option value="breakfast">🌅 Breakfast</option>
+                        <option value="lunch">☀️ Lunch</option>
+                        <option value="dinner">🌙 Dinner</option>
+                        <option value="snack">🍪 Snack</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="food-name">Food Name</label>
+                      <input type="text" id="food-name" placeholder="e.g. Grilled Chicken Salad" required>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="calorie-count">Calories</label>
+                      <input type="number" id="calorie-count" placeholder="350" min="1" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="calorie-date">Date</label>
+                      <input type="date" id="calorie-date">
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-success">🍎 Log Meal</button>
+                </form>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><h3>Today's Meals</h3></div>
+              <div class="card-body" id="calories-list"><div class="spinner"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ WATER TRACKER ═══ -->
+        <div class="page-view" id="page-water">
+          <div class="page-header">
+            <h2>Water Intake</h2>
+            <p>Stay hydrated — track your daily water consumption.</p>
+          </div>
+          <div class="page-body">
+            <div class="two-col">
+              <div class="card">
+                <div class="card-header"><h3>Today's Progress</h3></div>
+                <div class="card-body">
+                  <div class="water-progress-container">
+                    <div class="water-circle">
+                      <svg viewBox="0 0 200 200">
+                        <defs>
+                          <linearGradient id="waterGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#0ea5e9"/>
+                            <stop offset="100%" style="stop-color:#7dd3fc"/>
+                          </linearGradient>
+                        </defs>
+                        <circle class="track" cx="100" cy="100" r="90"/>
+                        <circle class="progress-ring" id="water-progress-ring" cx="100" cy="100" r="90"/>
+                      </svg>
+                      <div class="water-value">
+                        <div class="water-num" id="water-total-ml">0</div>
+                        <div class="water-unit">/ 2500 ml</div>
+                      </div>
+                    </div>
+                    <div class="water-glasses" id="water-glasses-visual"></div>
+                    <div class="quick-add-btns">
+                      <button class="btn btn-water btn-sm" onclick="Water.quickAdd(1)">+1 Glass</button>
+                      <button class="btn btn-water btn-sm" onclick="Water.quickAdd(2)">+2 Glasses</button>
+                      <button class="btn btn-water" onclick="Water.quickAdd(3)">+500ml Bottle</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header"><h3>Today's Log</h3></div>
+                <div class="card-body" id="water-log"><div class="spinner"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ BMI ═══ -->
+        <div class="page-view" id="page-bmi">
+          <div class="page-header">
+            <h2>BMI Calculator</h2>
+            <p>Calculate your Body Mass Index.</p>
+          </div>
+          <div class="page-body">
+            <div class="card" style="max-width: 600px;">
+              <div class="card-header"><h3>Calculate Your BMI</h3></div>
+              <div class="card-body">
+                <form id="bmi-form">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="bmi-height">Height (cm)</label>
+                      <input type="number" id="bmi-height" placeholder="175" min="50" max="300" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="bmi-weight">Weight (kg)</label>
+                      <input type="number" id="bmi-weight" placeholder="70" min="20" max="500" step="0.1" required>
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary">⚖️ Calculate BMI</button>
+                </form>
+                <div id="bmi-result" style="display:none;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ GOALS ═══ -->
+        <div class="page-view" id="page-goals">
+          <div class="page-header">
+            <h2>Goal Tracker</h2>
+            <p>Set and track your fitness goals.</p>
+          </div>
+          <div class="page-body">
+            <div class="card" style="margin-bottom:24px;">
+              <div class="card-header"><h3>Set New Goal</h3></div>
+              <div class="card-body">
+                <form id="goal-form">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="goal-type">Goal Type</label>
+                      <select id="goal-type" required>
+                        <option value="">Select type...</option>
+                        <option value="weight">⚖️ Weight Target (kg)</option>
+                        <option value="workout">💪 Workouts per Week</option>
+                        <option value="calorie">🔥 Daily Calorie Target</option>
+                        <option value="distance">🏃 Distance (km)</option>
+                        <option value="custom">⭐ Custom</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="goal-target">Target Value</label>
+                      <input type="number" id="goal-target" placeholder="10" min="1" step="0.1" required>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="goal-current">Current Value</label>
+                      <input type="number" id="goal-current" placeholder="0" min="0" step="0.1">
+                    </div>
+                    <div class="form-group">
+                      <label for="goal-deadline">Deadline</label>
+                      <input type="date" id="goal-deadline">
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary">🎯 Set Goal</button>
+                </form>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><h3>Your Goals</h3></div>
+              <div class="card-body" id="goals-list"><div class="spinner"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ WEEKLY PROGRESS ═══ -->
+        <div class="page-view" id="page-progress">
+          <div class="page-header">
+            <h2>Weekly Progress</h2>
+            <p>Visualize your fitness journey this week.</p>
+          </div>
+          <div class="page-body">
+            <div class="charts-grid">
+              <div class="card">
+                <div class="card-header"><h3>Workout Minutes</h3></div>
+                <div class="card-body"><div class="chart-container"><canvas id="chart-progress-minutes"></canvas></div></div>
+              </div>
+              <div class="card">
+                <div class="card-header"><h3>Calories Burned vs Consumed</h3></div>
+                <div class="card-body"><div class="chart-container"><canvas id="chart-progress-calories"></canvas></div></div>
+              </div>
+            </div>
+            <div class="charts-grid">
+              <div class="card">
+                <div class="card-header"><h3>Workout Count by Day</h3></div>
+                <div class="card-body"><div class="chart-container"><canvas id="chart-progress-count"></canvas></div></div>
+              </div>
+              <div class="card">
+                <div class="card-header"><h3>Water Intake by Day</h3></div>
+                <div class="card-body"><div class="chart-container"><canvas id="chart-progress-water"></canvas></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ PROFILE ═══ -->
+        <div class="page-view" id="page-profile">
+          <div class="page-header">
+            <h2>Profile</h2>
+            <p>Manage your account and preferences.</p>
+          </div>
+          <div class="page-body">
+            <div class="two-col">
+              <div class="card">
+                <div class="card-body">
+                  <div class="profile-header">
+                    <div class="profile-avatar" id="profile-avatar">U</div>
+                    <div class="profile-username" id="profile-username">User</div>
+                    <div class="profile-email" id="profile-email">user@email.com</div>
+                  </div>
+                  <div class="profile-stats" id="profile-stats">
+                    <div class="profile-stat-item">
+                      <div class="value" id="profile-total-workouts">0</div>
+                      <div class="label">Total Workouts</div>
+                    </div>
+                    <div class="profile-stat-item">
+                      <div class="value" id="profile-total-calories">0</div>
+                      <div class="label">Calories Burned</div>
+                    </div>
+                    <div class="profile-stat-item">
+                      <div class="value" id="profile-goals-completed">0</div>
+                      <div class="label">Goals Hit</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header"><h3>Edit Profile</h3></div>
+                <div class="card-body">
+                  <form id="profile-form">
+                    <div class="form-group">
+                      <label for="profile-edit-username">Username</label>
+                      <input type="text" id="profile-edit-username" placeholder="Username">
+                    </div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label for="profile-edit-height">Height (cm)</label>
+                        <input type="number" id="profile-edit-height" placeholder="175" step="0.1">
+                      </div>
+                      <div class="form-group">
+                        <label for="profile-edit-weight">Weight (kg)</label>
+                        <input type="number" id="profile-edit-weight" placeholder="70" step="0.1">
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>Avatar Color</label>
+                      <div class="color-picker-grid" id="color-picker"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/workouts.js"></script>
+  <script src="js/calories.js"></script>
+  <script src="js/bmi.js"></script>
+  <script src="js/goals.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/water.js"></script>
+  <script src="js/profile.js"></script>
+</body>
+</html>
