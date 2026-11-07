@@ -32,7 +32,7 @@ QUOTES = [
 
 def create_app():
     app = Flask(__name__,
-                static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'frontend'),
+                static_folder=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'frontend'),
                 static_url_path='')
     app.config.from_object(Config)
 
