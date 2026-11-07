@@ -2,7 +2,7 @@
  * FitTrack v2 — API Client
  * Centralized HTTP client for all backend communication.
  */
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = '/api';
 
 const Api = {
   getToken() { return localStorage.getItem('fittrack_token'); },
